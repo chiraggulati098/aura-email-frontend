@@ -1,16 +1,61 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Email } from './EmailList';
 import { ArrowLeft, AlertTriangle, Shield, Reply, Trash, MoreHorizontal, Paperclip } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 
 interface EmailDetailProps {
   email: Email | null;
   onBack: () => void;
   onReply: (email: Email) => void;
+  onEmailUpdate?: (email: Email) => void;
 }
 
-const EmailDetail = ({ email, onBack, onReply }: EmailDetailProps) => {
+const EmailDetail = ({ email, onBack, onReply, onEmailUpdate }: EmailDetailProps) => {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (email?.id && !email.read) {
+      fetch('http://127.0.0.1:5000/api/mark_as_read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ msg_id: email.id }),
+        credentials: 'include',
+      })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to mark email as read');
+        }
+        return data;
+      })
+      .then(data => {
+        if (data.updated) {
+// Update the email's read status in the parent component
+          if (onEmailUpdate && email) {
+            onEmailUpdate({
+              ...email,
+              read: true
+            });
+          }
+          toast({
+            description: "Email marked as read"
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error marking email as read:', error);
+        toast({
+          variant: "destructive",
+          description: error.message
+        });
+      });
+    }
+  }, [email?.id, email?.read, toast]);
+
   if (!email) {
     return (
       <div className="flex-1 flex items-center justify-center h-full">
