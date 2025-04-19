@@ -79,7 +79,7 @@ const EmailDetail = ({ email, onBack, onReply }: EmailDetailProps) => {
           </div>
         )}
 
-        <div className="prose prose-sm max-w-none">
+        <div className="prose prose-sm max-w-none whitespace-pre-wrap">
           {email.body}
         </div>
       </div>

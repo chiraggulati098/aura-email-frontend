@@ -65,8 +65,8 @@ const EmailClient = () => {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="h-14 border-b flex items-center px-4">
-        <h1 className="text-xl font-bold text-email-primary">AI Email</h1>
+      <header className="h-14 border-b flex items-center px-6">
+        <h1 className="text-xl font-bold text-foreground">AI Email</h1>
       </header>
 
       <main className="flex flex-1 overflow-hidden">
