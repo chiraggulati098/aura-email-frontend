@@ -11,9 +11,10 @@ interface EmailDetailProps {
   onReply: (email: Email) => void;
   onEmailUpdate?: (email: Email) => void;
   onDelete?: () => void;
+  onRead?: () => void;
 }
 
-const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete }: EmailDetailProps) => {
+const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }: EmailDetailProps) => {
   const { toast } = useToast();
 
   const handleDelete = async () => {
@@ -76,12 +77,16 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete }: EmailD
       })
       .then(data => {
         if (data.updated) {
-// Update the email's read status in the parent component
+          // Update the email's read status in the parent component
           if (onEmailUpdate && email) {
             onEmailUpdate({
               ...email,
               read: true
             });
+          }
+          // Refresh the email list
+          if (onRead) {
+            onRead();
           }
           toast({
             description: "Email marked as read"
