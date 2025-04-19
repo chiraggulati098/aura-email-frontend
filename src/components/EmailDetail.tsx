@@ -5,6 +5,32 @@ import { Email } from './EmailList';
 import { ArrowLeft, AlertTriangle, Shield, Reply, Trash, MoreHorizontal, Paperclip } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
+const convertUrlsToLinks = (text: string) => {
+  // Regular expression to match URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  
+  // Split the text into parts: URLs and non-URLs
+  const parts = text.split(urlRegex);
+  
+  // Map through the parts and convert URLs to links
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 interface EmailDetailProps {
   email: Email | null;
   onBack: () => void;
@@ -176,19 +202,19 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }
         )}
 
         <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-          {email.body || "No content available."}
+          {convertUrlsToLinks(email.body || "No content available.")}
         </div>
-      </div>
 
-      <div className="p-4 border-t">
-        <Button 
-          variant="outline" 
-          className="gap-2"
-          onClick={() => onReply(email)}
-        >
-          <Reply className="h-4 w-4" />
-          Reply
-        </Button>
+        <div className="p-4 border-t">
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => onReply(email)}
+          >
+            <Reply className="h-4 w-4" />
+            Reply
+          </Button>
+        </div>
       </div>
     </div>
   );
