@@ -112,6 +112,7 @@ const EmailClient = () => {
             email={selectedEmail} 
             onBack={handleBackToList} 
             onReply={handleReply}
+            onDelete={() => fetchEmails(currentPage)}
           />
         )}
       </main>

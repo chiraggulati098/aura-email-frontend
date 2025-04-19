@@ -10,10 +10,52 @@ interface EmailDetailProps {
   onBack: () => void;
   onReply: (email: Email) => void;
   onEmailUpdate?: (email: Email) => void;
+  onDelete?: () => void;
 }
 
-const EmailDetail = ({ email, onBack, onReply, onEmailUpdate }: EmailDetailProps) => {
+const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete }: EmailDetailProps) => {
   const { toast } = useToast();
+
+  const handleDelete = async () => {
+    if (!email?.id) return;
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/delete_email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ msg_id: email.id }),
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete email');
+      }
+
+      if (data.deleted) {
+        toast({
+          description: "Email deleted successfully"
+        });
+        if (onDelete) {
+          onDelete();
+        }
+        onBack(); // Go back to inbox after successful deletion
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Email not found"
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting email:', error);
+      toast({
+        variant: "destructive",
+        description: error instanceof Error ? error.message : 'Failed to delete email'
+      });
+    }
+  };
 
   useEffect(() => {
     if (email?.id && !email.read) {
@@ -84,7 +126,7 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate }: EmailDetailProps
           )}
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={handleDelete}>
             <Trash className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon">
