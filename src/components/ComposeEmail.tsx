@@ -15,13 +15,12 @@ const ComposeEmail = ({ onClose, replyTo, subject }: ComposeEmailProps) => {
   const [to, setTo]             = useState(replyTo || "");
   const [subj, setSubj]         = useState(replyTo ? `Re: ${subject}` : "");
   const [body, setBody]         = useState("");
-  const [bodyType, setBodyType] = useState<"plain"|"html">("plain");
   const [sending, setSending]   = useState(false);
 
   const handleSend = async () => {
     setSending(true);
     try {
-      const payload = { to, subject: subj, body, body_type: bodyType };
+      const payload = { to, subject: subj, body};
       console.log('Sending email payload:', payload);
 
       const res = await fetch("http://127.0.0.1:5000/api/send_email", {
@@ -77,19 +76,6 @@ const ComposeEmail = ({ onClose, replyTo, subject }: ComposeEmailProps) => {
         <div className="p-4 space-y-4 flex-1">
           <Input placeholder="To" value={to} onChange={e=>setTo(e.target.value)} />
           <Input placeholder="Subject" value={subj} onChange={e=>setSubj(e.target.value)} />
-
-          <div className="flex items-center gap-2">
-            <label htmlFor="bodyType">Format:</label>
-            <select
-              id="bodyType"
-              className="border rounded px-2 py-1"
-              value={bodyType}
-              onChange={e => setBodyType(e.target.value as "plain"|"html")}
-            >
-              <option value="plain">Plain Text</option>
-              <option value="html">HTML</option>
-            </select>
-          </div>
 
           <Textarea
             placeholder="Write your message here..."
