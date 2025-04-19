@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -6,10 +5,8 @@ import {
   AlertTriangle, 
   Archive, 
   Send, 
-  PlusCircle,
-  Search
+  PlusCircle
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
 
 interface EmailSidebarProps {
@@ -36,15 +33,6 @@ const EmailSidebar = ({ activePage, onChangePage, onComposeClick }: EmailSidebar
           <PlusCircle className="h-4 w-4" />
           Compose
         </Button>
-        
-        <div className="relative mt-4">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-          <Input 
-            type="search" 
-            placeholder="Search email" 
-            className="pl-8" 
-          />
-        </div>
       </div>
 
       <nav className="mt-2">
