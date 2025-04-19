@@ -12,19 +12,25 @@ const EmailClient = () => {
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Add new pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalEmails, setTotalEmails] = useState(0);
+  const [emailsPerPage] = useState(20);
 
-  const fetchEmails = async () => {
+  const fetchEmails = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('http://127.0.0.1:5000/api/fetch_emails');
+      const response = await fetch(`http://127.0.0.1:5000/api/fetch_emails?page=${page}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
-      setEmails(data);
+      setEmails(data.emails);
+      setTotalEmails(data.total_emails);
+      setCurrentPage(data.page);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch emails');
       console.error('Error fetching emails:', err);
@@ -63,6 +69,11 @@ const EmailClient = () => {
     setIsComposing(true);
   };
 
+  // Add pagination handler
+  const handlePageChange = (newPage: number) => {
+    fetchEmails(newPage);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <header className="h-14 border-b flex items-center px-6">
@@ -90,6 +101,10 @@ const EmailClient = () => {
               emails={emails} 
               onSelectEmail={handleSelectEmail} 
               activePage={activePage}
+              currentPage={currentPage}
+              totalEmails={totalEmails}
+              emailsPerPage={emailsPerPage}
+              onPageChange={handlePageChange}
             />
           )
         ) : (
