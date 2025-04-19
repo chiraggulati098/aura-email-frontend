@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Shield, Star, Paperclip, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Shield, Star, Paperclip, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 
 export interface Email {
   id: string;
@@ -32,7 +33,38 @@ export interface EmailListProps {
 }
 
 const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails, emailsPerPage, onPageChange }: EmailListProps) => {
+  const [refreshing, setRefreshing] = useState(false);
   const totalPages = Math.ceil(totalEmails / emailsPerPage);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const res = await fetch("http://127.0.0.1:5000/api/refresh", {
+        method: "POST",
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to refresh");
+      
+      if (data.new_emails_count === 0) {
+        toast({
+          description: "No new emails",
+        });
+      } else {
+        // If there are new emails, go to page 1 and reload
+        onPageChange(1);
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Refresh failed",
+        description: err.message
+      });
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -56,6 +88,20 @@ const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails
   return (
     <div className="flex-1 overflow-auto flex flex-col">
       <div className="flex-1">
+        <div className="p-4 border-b flex justify-between items-center">
+          <h2 className="text-lg font-semibold capitalize">{activePage}</h2>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </Button>
+        </div>
+
         {filteredEmails.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <p className="text-lg font-medium">No emails in {activePage}</p>
