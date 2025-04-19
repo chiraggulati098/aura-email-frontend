@@ -68,7 +68,8 @@ const EmailList = ({ emails, onSelectEmail, activePage }: EmailListProps) => {
                       )}
                     </div>
                     <div className="text-sm text-gray-500 whitespace-nowrap">
-                      {email.time}
+                      <div>{email.date}</div>
+                      <div>{email.time}</div>
                     </div>
                   </div>
                   
