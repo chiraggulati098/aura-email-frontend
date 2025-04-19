@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input }  from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Send, Paperclip } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface ComposeEmailProps {
   onClose?: () => void;
@@ -20,18 +21,40 @@ const ComposeEmail = ({ onClose, replyTo, subject }: ComposeEmailProps) => {
   const handleSend = async () => {
     setSending(true);
     try {
-      const res = await fetch("/api/send_email", {
+      const payload = { to, subject: subj, body, body_type: bodyType };
+      console.log('Sending email payload:', payload);
+
+      const res = await fetch("http://127.0.0.1:5000/api/send_email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to, subject: subj, body, body_type: bodyType }),
+        body: JSON.stringify(payload),
       });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error || "Unknown error");
-      // optionally show a toast here
-      onClose();
+      
+      let json;
+      try {
+        json = await res.json();
+      } catch (jsonError) {
+        throw new Error(
+          `Server error (${res.status}): Failed to parse response`
+        );
+      }
+
+      if (!res.ok) {
+        throw new Error(json?.error || `Server error (${res.status})`);
+      }
+      
+      toast({
+        title: "Success",
+        description: "Mail sent!",
+      });
+      onClose?.();
     } catch (err: any) {
       console.error(err);
-      alert("Failed to send: " + err.message);
+      toast({
+        variant: "destructive",
+        title: "Failed to send",
+        description: err.message,
+      });
     } finally {
       setSending(false);
     }
