@@ -27,7 +27,7 @@ const EmailDetail = ({ email, onBack, onReply }: EmailDetailProps) => {
         </Button>
         <div className="flex-1">
           <h2 className="text-xl font-semibold">
-            {email.subject}
+            {email.subject || "No Subject"}
             {email.has_attachments && (
               <Paperclip className="h-4 w-4 inline ml-2 text-muted-foreground" />
             )}
@@ -51,14 +51,18 @@ const EmailDetail = ({ email, onBack, onReply }: EmailDetailProps) => {
       <div className="p-4 space-y-4 overflow-auto flex-1">
         <div className="flex justify-between items-start">
           <div>
-            <div className="font-medium">{email.sender}</div>
+            <div className="font-medium">{email.sender || "Unknown Sender"}</div>
             <div className="text-sm text-muted-foreground">
-              To: {email.recipients.join(', ')}
+              To: {email.recipients
+                ? (Array.isArray(email.recipients)
+                  ? email.recipients.join(", ")
+                  : email.recipients)
+                : "Unknown Recipients"}
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
-            <div>{email.date}</div>
-            <div>{email.time}</div>
+            <div>{email.date || "Unknown Date"}</div>
+            <div>{email.time || "Unknown Time"}</div>
           </div>
         </div>
 
@@ -80,7 +84,7 @@ const EmailDetail = ({ email, onBack, onReply }: EmailDetailProps) => {
         )}
 
         <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-          {email.body}
+          {email.body || "No content available."}
         </div>
       </div>
 
