@@ -21,7 +21,11 @@ const EmailClient = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`http://127.0.0.1:5000/api/fetch_emails?page=${page}`);
+      const endpoint = activePage === 'sent'
+        ? `http://127.0.0.1:5000/api/fetch_sent_emails?page=${page}`
+        : `http://127.0.0.1:5000/api/fetch_emails?page=${page}`;
+      
+      const response = await fetch(endpoint);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -40,8 +44,8 @@ const EmailClient = () => {
   };
 
   useEffect(() => {
-    fetchEmails();
-  }, []);
+    fetchEmails(1); // Reset to page 1 when changing sections
+  }, [activePage]); // Added activePage as a dependency
 
   const handleSelectEmail = (email: Email) => {
     setSelectedEmail(email);

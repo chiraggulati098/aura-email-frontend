@@ -81,8 +81,8 @@ const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails
   const filteredEmails = emails.filter(email => {
     if (activePage === 'inbox') return !email.spam && !email.phishing;
     if (activePage === 'spam') return email.spam || email.phishing;
-    if (activePage === 'sent') return false;
-    return true;
+    if (activePage === 'sent') return true; // Show all emails from sent endpoint
+    return true; // 'all' page shows everything
   });
 
   return (
@@ -118,7 +118,7 @@ const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails
                   "relative"
                 )}
               >
-                 <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-1">
                       <div className="flex items-center gap-2">
