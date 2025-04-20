@@ -21,7 +21,12 @@ const ComposeEmail = ({ onClose, replyTo, subject, initialBody }: ComposeEmailPr
   const handleSend = async () => {
     setSending(true);
     try {
-      const payload = { to, subject: subj, body};
+      const payload = { 
+        to, 
+        subject: subj, 
+        body,
+        user_email: 'tc.chiraggulati@gmail.com'
+      };
       console.log('Sending email payload:', payload);
 
       const res = await fetch("http://127.0.0.1:5000/api/send_email", {

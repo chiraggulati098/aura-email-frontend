@@ -57,7 +57,10 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ msg_id: email.id }),
+        body: JSON.stringify({ 
+          msg_id: email.id,
+          user_email: 'tc.chiraggulati@gmail.com'
+        }),
         credentials: 'include',
       });
 
@@ -98,7 +101,10 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ msg_id: email.id }),
+        body: JSON.stringify({ 
+          msg_id: email.id,
+          user_email: 'tc.chiraggulati@gmail.com'
+        }),
         credentials: 'include',
       });
 
@@ -132,7 +138,10 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ msg_id: email.id }),
+        body: JSON.stringify({ 
+          msg_id: email.id,
+          user_email: 'tc.chiraggulati@gmail.com'
+        }),
         credentials: 'include',
       });
 
@@ -171,7 +180,10 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ msg_id: email.id }),
+        body: JSON.stringify({ 
+          msg_id: email.id,
+          user_email: 'tc.chiraggulati@gmail.com'
+        }),
         credentials: 'include',
       })
       .then(async response => {

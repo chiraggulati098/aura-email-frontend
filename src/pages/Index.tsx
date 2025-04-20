@@ -48,9 +48,10 @@ const EmailClient = () => {
       }
       setError(null);
       const filter = getFilterForPage(activePage);
+      const userEmail = 'tc.chiraggulati@gmail.com';
       const endpoint = activePage === 'sent'
-        ? `http://127.0.0.1:5000/api/fetch_sent_emails?page=${page}`
-        : `http://127.0.0.1:5000/api/fetch_emails?page=${page}&filter=${filter}`;
+        ? `http://127.0.0.1:5000/api/fetch_sent_emails?page=${page}&user_email=${encodeURIComponent(userEmail)}`
+        : `http://127.0.0.1:5000/api/fetch_emails?page=${page}&filter=${filter}&user_email=${encodeURIComponent(userEmail)}`;
       
       const response = await fetch(endpoint);
       
