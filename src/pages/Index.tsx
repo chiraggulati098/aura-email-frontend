@@ -41,9 +41,11 @@ const EmailClient = () => {
     }
   };
 
-  const fetchEmails = async (page = 1) => {
+  const fetchEmails = async (page = 1, silentUpdate = false) => {
     try {
-      setLoading(true);
+      if (!silentUpdate) {
+        setLoading(true);
+      }
       setError(null);
       const filter = getFilterForPage(activePage);
       const endpoint = activePage === 'sent'
@@ -64,7 +66,9 @@ const EmailClient = () => {
       setError(err instanceof Error ? err.message : 'Failed to fetch emails');
       console.error('Error fetching emails:', err);
     } finally {
-      setLoading(false);
+      if (!silentUpdate) {
+        setLoading(false);
+      }
     }
   };
 
@@ -117,7 +121,16 @@ const EmailClient = () => {
           onComposeClick={handleComposeClick}
         />
         
-        {loading ? (
+        {selectedEmail ? (
+          <EmailDetail 
+            email={selectedEmail} 
+            onBack={handleBackToList} 
+            onReply={handleReply}
+            onDelete={() => fetchEmails(currentPage, true)}
+            onRead={() => fetchEmails(currentPage, true)}
+            activePage={activePage}
+          />
+        ) : loading ? (
           <div className="flex-1 flex items-center justify-center">
             <p>Loading...</p>
           </div>
@@ -125,7 +138,7 @@ const EmailClient = () => {
           <div className="flex-1 flex items-center justify-center text-red-500">
             <p>{error}</p>
           </div>
-        ) : !selectedEmail ? (
+        ) : (
           <EmailList 
             emails={emails}
             onSelectEmail={handleSelectEmail}
@@ -134,15 +147,6 @@ const EmailClient = () => {
             totalEmails={totalEmails}
             emailsPerPage={emailsPerPage}
             onPageChange={handlePageChange}
-          />
-        ) : (
-          <EmailDetail 
-            email={selectedEmail} 
-            onBack={handleBackToList} 
-            onReply={handleReply}
-            onDelete={() => fetchEmails(currentPage)}
-            onRead={() => fetchEmails(currentPage)}
-            activePage={activePage}
           />
         )}
       </main>

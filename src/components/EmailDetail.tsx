@@ -183,16 +183,16 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
       })
       .then(data => {
         if (data.updated) {
+          // Silently update the email list in the background
+          if (onRead) {
+            onRead();
+          }
           // Update the email's read status in the parent component
           if (onEmailUpdate && email) {
             onEmailUpdate({
               ...email,
               read: true
             });
-          }
-          // Refresh the email list
-          if (onRead) {
-            onRead();
           }
           toast({
             description: "Email marked as read"
