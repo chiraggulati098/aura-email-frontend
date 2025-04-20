@@ -44,6 +44,42 @@ interface EmailDetailProps {
 const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, activePage }: EmailDetailProps) => {
   const { toast } = useToast();
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+
+  const handleSummarize = async () => {
+    if (!email?.id) return;
+    
+    setIsLoadingSummary(true);
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/summarize_email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ msg_id: email.id }),
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to summarize email');
+      }
+
+      setSummary(data.summary);
+      toast({
+        description: "Email summarized successfully"
+      });
+    } catch (error) {
+      console.error('Error summarizing email:', error);
+      toast({
+        variant: "destructive",
+        description: error instanceof Error ? error.message : 'Failed to summarize email'
+      });
+      setSummary(null);
+    } finally {
+      setIsLoadingSummary(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!email?.id) return;
@@ -203,11 +239,17 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
           </div>
         )}
 
-        {isLoadingSummary && (
+        {(isLoadingSummary || summary) && (
           <div className="bg-slate-50 p-4 rounded-md border">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="animate-pulse">Generating</div>
-              <div className="animate-pulse">Summary</div>
+              {isLoadingSummary ? (
+                <>
+                  <div className="animate-pulse">Generating</div>
+                  <div className="animate-pulse">Summary</div>
+                </>
+              ) : (
+                <div className="text-sm">{summary}</div>
+              )}
             </div>
           </div>
         )}
@@ -230,7 +272,7 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
             <Button
               variant="outline"
               className="gap-2"
-              onClick={() => setIsLoadingSummary(true)}
+              onClick={handleSummarize}
             >
               <Bot className="h-4 w-4" />
               Summarize
