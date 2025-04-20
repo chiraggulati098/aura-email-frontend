@@ -9,12 +9,13 @@ interface ComposeEmailProps {
   onClose?: () => void;
   replyTo?: string;
   subject?: string;
+  initialBody?: string;
 }
 
-const ComposeEmail = ({ onClose, replyTo, subject }: ComposeEmailProps) => {
+const ComposeEmail = ({ onClose, replyTo, subject, initialBody }: ComposeEmailProps) => {
   const [to, setTo]             = useState(replyTo || "");
   const [subj, setSubj]         = useState(replyTo ? `Re: ${subject}` : "");
-  const [body, setBody]         = useState("");
+  const [body, setBody]         = useState(initialBody || "");
   const [sending, setSending]   = useState(false);
 
   const handleSend = async () => {

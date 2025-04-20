@@ -20,7 +20,7 @@ const EmailClient = () => {
   const [activePage, setActivePage] = useState('inbox');
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const [isComposing, setIsComposing] = useState(false);
-  const [replyTo, setReplyTo] = useState<{email: string, subject: string} | null>(null);
+  const [replyTo, setReplyTo] = useState<{email: string, subject: string, body?: string} | null>(null);
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +93,8 @@ const EmailClient = () => {
   const handleReply = (email: Email) => {
     setReplyTo({
       email: email.sender,
-      subject: email.subject
+      subject: email.subject,
+      body: email.body
     });
     setIsComposing(true);
   };
@@ -151,6 +152,7 @@ const EmailClient = () => {
           onClose={handleCloseCompose} 
           replyTo={replyTo?.email} 
           subject={replyTo?.subject}
+          initialBody={replyTo?.body}
         />
       )}
     </div>

@@ -45,6 +45,48 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
   const { toast } = useToast();
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  const [isGeneratingReply, setIsGeneratingReply] = useState(false);
+
+  const handleGenerateReply = async () => {
+    if (!email?.id) return;
+    
+    setIsGeneratingReply(true);
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/generate_reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ msg_id: email.id }),
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate reply');
+      }
+
+      toast({
+        description: "Reply generated successfully"
+      });
+      
+      // Call onReply with the AI generated reply as the body
+      if (email) {
+        onReply({
+          ...email,
+          body: data.reply
+        });
+      }
+    } catch (error) {
+      console.error('Error generating reply:', error);
+      toast({
+        variant: "destructive",
+        description: error instanceof Error ? error.message : 'Failed to generate reply'
+      });
+    } finally {
+      setIsGeneratingReply(false);
+    }
+  };
 
   const handleSummarize = async () => {
     if (!email?.id) return;
@@ -269,14 +311,30 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
           </Button>
           
           {activePage !== 'sent' && (
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={handleSummarize}
-            >
-              <Bot className="h-4 w-4" />
-              Summarize
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleGenerateReply}
+                disabled={isGeneratingReply}
+              >
+                <Bot className="h-4 w-4" />
+                {isGeneratingReply ? (
+                  <span className="animate-pulse">Generating reply</span>
+                ) : (
+                  'Generate Reply'
+                )}
+              </Button>
+
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleSummarize}
+              >
+                <Bot className="h-4 w-4" />
+                Summarize
+              </Button>
+            </>
           )}
         </div>
       </div>
