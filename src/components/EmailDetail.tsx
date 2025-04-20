@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Email } from './EmailList';
-import { ArrowLeft, AlertTriangle, Shield, Reply, Trash, MoreHorizontal, Paperclip } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Shield, Reply, Trash, MoreHorizontal, Paperclip, Bot } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
 const convertUrlsToLinks = (text: string) => {
@@ -42,6 +42,7 @@ interface EmailDetailProps {
 
 const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }: EmailDetailProps) => {
   const { toast } = useToast();
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
 
   const handleDelete = async () => {
     if (!email?.id) return;
@@ -201,11 +202,20 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }
           </div>
         )}
 
+        {isLoadingSummary && (
+          <div className="bg-slate-50 p-4 rounded-md border">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="animate-pulse">Generating</div>
+              <div className="animate-pulse">Summary</div>
+            </div>
+          </div>
+        )}
+
         <div className="prose prose-sm max-w-none whitespace-pre-wrap">
           {convertUrlsToLinks(email.body || "No content available.")}
         </div>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t flex gap-2">
           <Button 
             variant="outline" 
             className="gap-2"
@@ -213,6 +223,15 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }
           >
             <Reply className="h-4 w-4" />
             Reply
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => setIsLoadingSummary(true)}
+          >
+            <Bot className="h-4 w-4" />
+            Summarize
           </Button>
         </div>
       </div>
