@@ -3,12 +3,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface UserEmailContextType {
   userEmail: string | null;
   setUserEmail: (email: string) => void;
+  isEmailLoaded: boolean;
 }
 
 const UserEmailContext = createContext<UserEmailContextType | undefined>(undefined);
 
 export function UserEmailProvider({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isEmailLoaded, setIsEmailLoaded] = useState(false);
 
   useEffect(() => {
     const fetchUserEmail = async () => {
@@ -20,6 +22,8 @@ export function UserEmailProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Error fetching user email:', error);
+      } finally {
+        setIsEmailLoaded(true);
       }
     };
 
@@ -27,7 +31,7 @@ export function UserEmailProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <UserEmailContext.Provider value={{ userEmail, setUserEmail }}>
+    <UserEmailContext.Provider value={{ userEmail, setUserEmail, isEmailLoaded }}>
       {children}
     </UserEmailContext.Provider>
   );

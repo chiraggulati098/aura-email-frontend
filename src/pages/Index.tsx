@@ -42,7 +42,7 @@ const EmailClient = () => {
     }
   };
 
-  const { userEmail } = useUserEmail();
+  const { userEmail, isEmailLoaded } = useUserEmail();
 
   const fetchEmails = async (page = 1, silentUpdate = false) => {
     try {
@@ -79,8 +79,26 @@ const EmailClient = () => {
   };
 
   useEffect(() => {
-    fetchEmails(1); // Reset to page 1 when changing sections
-  }, [activePage]); // Added activePage as a dependency
+    let retryTimeout: NodeJS.Timeout;
+
+    const attemptFetch = () => {
+      if (isEmailLoaded) {
+        fetchEmails(1);
+      } else {
+        // If email is not loaded yet, retry after 500ms
+        retryTimeout = setTimeout(attemptFetch, 500);
+      }
+    };
+
+    attemptFetch();
+
+    // Cleanup function to clear the timeout if component unmounts
+    return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
+  }, [activePage, isEmailLoaded]); // Added isEmailLoaded as a dependency
 
   const handleSelectEmail = (email: Email) => {
     setSelectedEmail(email);
