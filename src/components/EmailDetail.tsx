@@ -38,9 +38,10 @@ interface EmailDetailProps {
   onEmailUpdate?: (email: Email) => void;
   onDelete?: () => void;
   onRead?: () => void;
+  activePage?: string;
 }
 
-const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }: EmailDetailProps) => {
+const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, activePage }: EmailDetailProps) => {
   const { toast } = useToast();
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
 
@@ -225,14 +226,16 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead }
             Reply
           </Button>
           
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => setIsLoadingSummary(true)}
-          >
-            <Bot className="h-4 w-4" />
-            Summarize
-          </Button>
+          {activePage !== 'sent' && (
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setIsLoadingSummary(true)}
+            >
+              <Bot className="h-4 w-4" />
+              Summarize
+            </Button>
+          )}
         </div>
       </div>
     </div>

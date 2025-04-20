@@ -116,26 +116,24 @@ const EmailClient = () => {
           onComposeClick={handleComposeClick}
         />
         
-        {error ? (
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p>Loading...</p>
+          </div>
+        ) : error ? (
           <div className="flex-1 flex items-center justify-center text-red-500">
-            <p>Error: {error}</p>
+            <p>{error}</p>
           </div>
         ) : !selectedEmail ? (
-          loading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <p>Loading emails...</p>
-            </div>
-          ) : (
-            <EmailList 
-              emails={emails} 
-              onSelectEmail={handleSelectEmail} 
-              activePage={activePage}
-              currentPage={currentPage}
-              totalEmails={totalEmails}
-              emailsPerPage={emailsPerPage}
-              onPageChange={handlePageChange}
-            />
-          )
+          <EmailList 
+            emails={emails}
+            onSelectEmail={handleSelectEmail}
+            activePage={activePage}
+            currentPage={currentPage}
+            totalEmails={totalEmails}
+            emailsPerPage={emailsPerPage}
+            onPageChange={handlePageChange}
+          />
         ) : (
           <EmailDetail 
             email={selectedEmail} 
@@ -143,6 +141,7 @@ const EmailClient = () => {
             onReply={handleReply}
             onDelete={() => fetchEmails(currentPage)}
             onRead={() => fetchEmails(currentPage)}
+            activePage={activePage}
           />
         )}
       </main>
