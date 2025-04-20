@@ -4,6 +4,18 @@ import EmailList, { Email } from '@/components/EmailList';
 import EmailDetail from '@/components/EmailDetail';
 import ComposeEmail from '@/components/ComposeEmail';
 
+type EmailFilter = 'valid_only' | 'spam_and_phishing' | 'all';
+
+interface EmailResponse {
+  emails: Email[];
+  total_emails: number;
+  page: number;
+  emails_per_page: number;
+  start_index: number;
+  end_index: number;
+  filter: EmailFilter;
+}
+
 const EmailClient = () => {
   const [activePage, setActivePage] = useState('inbox');
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
@@ -12,18 +24,31 @@ const EmailClient = () => {
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Add new pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalEmails, setTotalEmails] = useState(0);
   const [emailsPerPage] = useState(20);
+
+  const getFilterForPage = (page: string): EmailFilter => {
+    switch (page) {
+      case 'inbox':
+        return 'valid_only';
+      case 'spam':
+        return 'spam_and_phishing';
+      case 'all':
+        return 'all';
+      default:
+        return 'valid_only';
+    }
+  };
 
   const fetchEmails = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
+      const filter = getFilterForPage(activePage);
       const endpoint = activePage === 'sent'
         ? `http://127.0.0.1:5000/api/fetch_sent_emails?page=${page}`
-        : `http://127.0.0.1:5000/api/fetch_emails?page=${page}`;
+        : `http://127.0.0.1:5000/api/fetch_emails?page=${page}&filter=${filter}`;
       
       const response = await fetch(endpoint);
       

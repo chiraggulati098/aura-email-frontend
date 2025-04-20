@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { AlertTriangle, Shield, Star, Paperclip, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 
+export type EmailFilter = 'valid_only' | 'spam_and_phishing' | 'all';
+
 export interface Email {
   id: string;
   subject: string;
@@ -32,7 +34,15 @@ export interface EmailListProps {
   onPageChange: (page: number) => void;
 }
 
-const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails, emailsPerPage, onPageChange }: EmailListProps) => {
+const EmailList = ({ 
+  emails, 
+  onSelectEmail, 
+  activePage, 
+  currentPage, 
+  totalEmails, 
+  emailsPerPage, 
+  onPageChange
+}: EmailListProps) => {
   const [refreshing, setRefreshing] = useState(false);
   const totalPages = Math.ceil(totalEmails / emailsPerPage);
 
@@ -78,12 +88,7 @@ const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails
     }
   };
 
-  const filteredEmails = emails.filter(email => {
-    if (activePage === 'inbox') return !email.spam && !email.phishing;
-    if (activePage === 'spam') return email.spam || email.phishing;
-    if (activePage === 'sent') return true; // Show all emails from sent endpoint
-    return true; // 'all' page shows everything
-  });
+  // Emails are now pre-filtered by the backend API
 
   return (
     <div className="flex-1 overflow-auto flex flex-col">
@@ -102,13 +107,13 @@ const EmailList = ({ emails, onSelectEmail, activePage, currentPage, totalEmails
           </Button>
         </div>
 
-        {filteredEmails.length === 0 ? (
+        {emails.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <p className="text-lg font-medium">No emails in {activePage}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {filteredEmails.map((email) => (
+            {emails.map((email) => (
               <div 
                 key={email.id}
                 onClick={() => onSelectEmail(email)}
