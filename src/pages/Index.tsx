@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useUserEmail } from '@/contexts/UserEmailContext';
 import EmailSidebar from '@/components/EmailSidebar';
 import EmailList, { Email } from '@/components/EmailList';
 import EmailDetail from '@/components/EmailDetail';
@@ -41,14 +42,18 @@ const EmailClient = () => {
     }
   };
 
+  const { userEmail } = useUserEmail();
+
   const fetchEmails = async (page = 1, silentUpdate = false) => {
     try {
       if (!silentUpdate) {
         setLoading(true);
       }
+      if (!userEmail) {
+        throw new Error('User email not available');
+      }
       setError(null);
       const filter = getFilterForPage(activePage);
-      const userEmail = 'tc.chiraggulati@gmail.com';
       const endpoint = activePage === 'sent'
         ? `http://127.0.0.1:5000/api/fetch_sent_emails?page=${page}&user_email=${encodeURIComponent(userEmail)}`
         : `http://127.0.0.1:5000/api/fetch_emails?page=${page}&filter=${filter}&user_email=${encodeURIComponent(userEmail)}`;

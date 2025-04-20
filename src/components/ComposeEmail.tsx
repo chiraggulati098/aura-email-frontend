@@ -4,6 +4,7 @@ import { Input }  from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Send, Paperclip } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useUserEmail } from "@/contexts/UserEmailContext";
 
 interface ComposeEmailProps {
   onClose?: () => void;
@@ -18,14 +19,18 @@ const ComposeEmail = ({ onClose, replyTo, subject, initialBody }: ComposeEmailPr
   const [body, setBody]         = useState(initialBody || "");
   const [sending, setSending]   = useState(false);
 
+  const { userEmail } = useUserEmail();
   const handleSend = async () => {
     setSending(true);
     try {
+      if (!userEmail) {
+        throw new Error('User email not available');
+      }
       const payload = { 
         to, 
         subject: subj, 
         body,
-        user_email: 'tc.chiraggulati@gmail.com'
+        user_email: userEmail
       };
       console.log('Sending email payload:', payload);
 

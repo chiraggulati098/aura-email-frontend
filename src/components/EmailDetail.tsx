@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Email } from './EmailList';
 import { ArrowLeft, AlertTriangle, Shield, Reply, Trash, MoreHorizontal, Paperclip, Bot } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { useUserEmail } from "@/contexts/UserEmailContext";
 
 const convertUrlsToLinks = (text: string) => {
   // Regular expression to match URLs
@@ -47,8 +48,16 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
   const [summary, setSummary] = useState<string | null>(null);
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
 
+  const { userEmail } = useUserEmail();
   const handleGenerateReply = async () => {
     if (!email?.id) return;
+    if (!userEmail) {
+      toast({
+        variant: "destructive",
+        description: "User email not available"
+      });
+      return;
+    }
     
     setIsGeneratingReply(true);
     try {
@@ -59,7 +68,7 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         },
         body: JSON.stringify({ 
           msg_id: email.id,
-          user_email: 'tc.chiraggulati@gmail.com'
+          user_email: userEmail
         }),
         credentials: 'include',
       });
@@ -103,7 +112,7 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         },
         body: JSON.stringify({ 
           msg_id: email.id,
-          user_email: 'tc.chiraggulati@gmail.com'
+          user_email: userEmail
         }),
         credentials: 'include',
       });
@@ -140,7 +149,7 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         },
         body: JSON.stringify({ 
           msg_id: email.id,
-          user_email: 'tc.chiraggulati@gmail.com'
+          user_email: userEmail
         }),
         credentials: 'include',
       });
@@ -182,7 +191,7 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
         },
         body: JSON.stringify({ 
           msg_id: email.id,
-          user_email: 'tc.chiraggulati@gmail.com'
+          user_email: userEmail
         }),
         credentials: 'include',
       })
