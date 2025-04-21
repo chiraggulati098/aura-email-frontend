@@ -325,7 +325,10 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={() => onReply(email)}
+            onClick={() => onReply({
+              ...email,
+              body: '' // Clear the body for regular replies
+            })}
           >
             <Reply className="h-4 w-4" />
             Reply
