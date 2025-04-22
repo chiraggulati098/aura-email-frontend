@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -113,5 +112,15 @@
   
   .email-item-read {
     @apply font-normal bg-email-read;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .live-dot {
+    @apply w-2 h-2 rounded-full bg-green-500;
+    animation: blink 2s ease-in-out infinite;
   }
 }

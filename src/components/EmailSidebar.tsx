@@ -53,8 +53,11 @@ const EmailSidebar = ({ activePage, onChangePage, onComposeClick }: EmailSidebar
       </nav>
 
       <div className="mt-auto p-4 text-xs text-muted-foreground">
-        <p>AI Email</p>
-        <p>Smart Filtering Active</p>
+        <p>AURA Email</p>
+        <div className="flex items-center gap-2">
+          <p>Smart Filtering Active</p>
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-[blink_2s_ease-in-out_infinite]"></div>
+        </div>
       </div>
     </div>
   );
