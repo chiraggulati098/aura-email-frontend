@@ -4,6 +4,7 @@ import EmailSidebar from '@/components/EmailSidebar';
 import EmailList, { Email } from '@/components/EmailList';
 import EmailDetail from '@/components/EmailDetail';
 import ComposeEmail from '@/components/ComposeEmail';
+import api from '@/lib/axios';
 
 type EmailFilter = 'valid_only' | 'spam_and_phishing' | 'all';
 
@@ -49,22 +50,16 @@ const EmailClient = () => {
       if (!silentUpdate) {
         setLoading(true);
       }
-      if (!userEmail) {
-        throw new Error('User email not available');
-      }
       setError(null);
+      
       const filter = getFilterForPage(activePage);
       const endpoint = activePage === 'sent'
-        ? `http://127.0.0.1:5000/api/fetch_sent_emails?page=${page}&user_email=${encodeURIComponent(userEmail)}`
-        : `http://127.0.0.1:5000/api/fetch_emails?page=${page}&filter=${filter}&user_email=${encodeURIComponent(userEmail)}`;
+        ? `/api/fetch_sent_emails?page=${page}`
+        : `/api/fetch_emails?page=${page}&filter=${filter}`;
       
-      const response = await fetch(endpoint);
+      const response = await api.get(endpoint);
+      const data = response.data;
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
       setEmails(data.emails);
       setTotalEmails(data.total_emails);
       setCurrentPage(data.page);

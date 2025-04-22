@@ -5,9 +5,11 @@ import {
   AlertTriangle, 
   Archive, 
   Send, 
-  PlusCircle
+  PlusCircle,
+  LogOut
 } from "lucide-react";
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EmailSidebarProps {
   activePage: string;
@@ -16,6 +18,7 @@ interface EmailSidebarProps {
 }
 
 const EmailSidebar = ({ activePage, onChangePage, onComposeClick }: EmailSidebarProps) => {
+  const { logout } = useAuth();
   const menuItems = [
     { id: 'inbox', label: 'Inbox', icon: <Inbox className="mr-2 h-4 w-4" /> },
     { id: 'spam', label: 'Spam', icon: <AlertTriangle className="mr-2 h-4 w-4" /> },
@@ -52,11 +55,22 @@ const EmailSidebar = ({ activePage, onChangePage, onComposeClick }: EmailSidebar
         ))}
       </nav>
 
-      <div className="mt-auto p-4 text-xs text-muted-foreground">
-        <p>AURA Email</p>
-        <div className="flex items-center gap-2">
-          <p>Smart Filtering Active</p>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-[blink_2s_ease-in-out_infinite]"></div>
+      <div className="mt-auto">
+        <Button
+          variant="ghost"
+          className="w-full justify-start rounded-none h-10 text-red-500 hover:text-red-600 hover:bg-red-50"
+          onClick={logout}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
+
+        <div className="p-4 text-xs text-muted-foreground">
+          <p>AURA Email</p>
+          <div className="flex items-center gap-2">
+            <p>Smart Filtering Active</p>
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-[blink_2s_ease-in-out_infinite]"></div>
+          </div>
         </div>
       </div>
     </div>

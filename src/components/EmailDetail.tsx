@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Email } from './EmailList';
 import { ArrowLeft, AlertTriangle, Shield, Reply, Trash, MoreHorizontal, Paperclip, Bot } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
-import { useUserEmail } from "@/contexts/UserEmailContext";
+import api from '@/lib/axios';
 
 const convertUrlsToLinks = (text: string) => {
   // Regular expression to match URLs
@@ -48,52 +48,31 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
   const [summary, setSummary] = useState<string | null>(null);
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
 
-  const { userEmail } = useUserEmail();
   const handleGenerateReply = async () => {
     if (!email?.id) return;
-    if (!userEmail) {
-      toast({
-        variant: "destructive",
-        description: "User email not available"
-      });
-      return;
-    }
     
     setIsGeneratingReply(true);
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/generate_reply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          msg_id: email.id,
-          user_email: userEmail
-        }),
-        credentials: 'include',
+      const response = await api.post('/api/generate_reply', {
+        msg_id: email.id
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate reply');
+      
+      if (onReply && email) {
+        // Call onReply with the original email but add the generated reply body
+        onReply({
+          ...email,
+          body: response.data.reply
+        });
       }
-
+      
       toast({
         description: "Reply generated successfully"
       });
-      
-      // Call onReply with the AI generated reply as the body
-      if (email) {
-        onReply({
-          ...email,
-          body: data.reply
-        });
-      }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating reply:', error);
       toast({
         variant: "destructive",
-        description: error instanceof Error ? error.message : 'Failed to generate reply'
+        description: error.response?.data?.error || 'Failed to generate reply'
       });
     } finally {
       setIsGeneratingReply(false);
@@ -105,32 +84,19 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
     
     setIsLoadingSummary(true);
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/summarize_email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          msg_id: email.id,
-          user_email: userEmail
-        }),
-        credentials: 'include',
+      const response = await api.post('/api/summarize_email', {
+        msg_id: email.id
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to summarize email');
-      }
-
-      setSummary(data.summary);
+      setSummary(response.data.summary);
       toast({
         description: "Email summarized successfully"
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error summarizing email:', error);
       toast({
         variant: "destructive",
-        description: error instanceof Error ? error.message : 'Failed to summarize email'
+        description: error.response?.data?.error || 'Failed to summarize email'
       });
       setSummary(null);
     } finally {
@@ -142,24 +108,11 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
     if (!email?.id) return;
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/delete_email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          msg_id: email.id,
-          user_email: userEmail
-        }),
-        credentials: 'include',
+      const response = await api.post('/api/delete_email', {
+        msg_id: email.id
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete email');
-      }
-
-      if (data.deleted) {
+      if (response.data.deleted) {
         toast({
           description: "Email deleted successfully"
         });
@@ -173,36 +126,22 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
           description: "Email not found"
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting email:', error);
       toast({
         variant: "destructive",
-        description: error instanceof Error ? error.message : 'Failed to delete email'
+        description: error.response?.data?.error || 'Failed to delete email'
       });
     }
   };
 
   useEffect(() => {
     if (email?.id && !email.read) {
-      fetch('http://127.0.0.1:5000/api/mark_as_read', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          msg_id: email.id,
-          user_email: userEmail
-        }),
-        credentials: 'include',
+      api.post('/api/mark_as_read', {
+        msg_id: email.id
       })
-      .then(async response => {
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to mark email as read');
-        }
-        return data;
-      })
-      .then(data => {
+      .then(response => {
+        const data = response.data;
         if (data.updated) {
           // Silently update the email list in the background
           if (onRead) {
@@ -222,13 +161,9 @@ const EmailDetail = ({ email, onBack, onReply, onEmailUpdate, onDelete, onRead, 
       })
       .catch(error => {
         console.error('Error marking email as read:', error);
-        toast({
-          variant: "destructive",
-          description: error.message
-        });
       });
     }
-  }, [email?.id, email?.read, toast]);
+  }, [email?.id, email?.read]);
 
   if (!email) {
     return (

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useAuth } from './AuthContext';
 
 interface UserEmailContextType {
   userEmail: string | null;
@@ -9,29 +10,15 @@ interface UserEmailContextType {
 const UserEmailContext = createContext<UserEmailContextType | undefined>(undefined);
 
 export function UserEmailProvider({ children }: { children: React.ReactNode }) {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [isEmailLoaded, setIsEmailLoaded] = useState(false);
+  const { userEmail, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const fetchUserEmail = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/get_user_email');
-        const data = await response.json();
-        if (data.email) {
-          setUserEmail(data.email);
-        }
-      } catch (error) {
-        console.error('Error fetching user email:', error);
-      } finally {
-        setIsEmailLoaded(true);
-      }
-    };
-
-    fetchUserEmail();
-  }, []);
-
+  // This is now just a pass-through from AuthContext
   return (
-    <UserEmailContext.Provider value={{ userEmail, setUserEmail, isEmailLoaded }}>
+    <UserEmailContext.Provider value={{ 
+      userEmail, 
+      setUserEmail: () => {}, // No-op since we manage email in AuthContext
+      isEmailLoaded: isAuthenticated
+    }}>
       {children}
     </UserEmailContext.Provider>
   );

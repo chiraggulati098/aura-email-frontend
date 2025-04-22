@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
 import { AlertTriangle, Shield, Star, Paperclip, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
-import { useUserEmail } from "@/contexts/UserEmailContext";
+import api from '@/lib/axios';
 
 export type EmailFilter = 'valid_only' | 'spam_and_phishing' | 'all';
 
@@ -46,28 +46,12 @@ const EmailList = ({
 }: EmailListProps) => {
   const [refreshing, setRefreshing] = useState(false);
   const totalPages = Math.ceil(totalEmails / emailsPerPage);
-
-  const { userEmail } = useUserEmail();
   
   const handleRefresh = async () => {
-    if (!userEmail) {
-      toast({
-        variant: "destructive",
-        description: "User email not available"
-      });
-      return;
-    }
-    
     setRefreshing(true);
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/refresh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_email: userEmail }),
-      });
-      
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to refresh");
+      const response = await api.post('/api/refresh');
+      const data = response.data;
       
       if (data.new_emails_count === 0) {
         toast({
@@ -82,7 +66,7 @@ const EmailList = ({
       toast({
         variant: "destructive",
         title: "Refresh failed",
-        description: err.message
+        description: err.response?.data?.error || err.message
       });
     } finally {
       setRefreshing(false);
